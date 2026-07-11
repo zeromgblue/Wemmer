@@ -384,6 +384,11 @@ select.input   { cursor: pointer; }
   transition: all 0.15s;
 }
 .topbar-btn:hover { background: var(--bg-3); color: var(--text); border-color: var(--border-2); }
+.lang-btn {
+  width: auto; padding: 0 12px;
+  font-size: 12px; font-weight: 700; letter-spacing: 0.5px;
+  font-family: 'Space Grotesk', sans-serif;
+}
 
 /* ══════════════════════════════════════════════
    BOTTOM NAV

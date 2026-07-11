@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { format, subDays, eachDayOfInterval } from 'date-fns'
 import { Plus, Check, X, Flame } from 'lucide-react'
 import { db } from '../lib/storage'
+import { useLanguage } from '../context/LangContext'
 
 const COLORS = ['#7c3aed', '#059669', '#d97706', '#dc2626', '#0891b2', '#db2777']
 
@@ -22,7 +23,7 @@ function calcStreak(logs) {
   return streak
 }
 
-function AddModal({ onClose, onAdd }) {
+function AddModal({ onClose, onAdd, t }) {
   const [name,  setName]  = useState('')
   const [color, setColor] = useState(COLORS[0])
   return (
@@ -31,18 +32,18 @@ function AddModal({ onClose, onAdd }) {
         <div className="modal-accent-bar" />
         <div className="modal-inner">
           <div className="modal-header">
-            <h2>เพิ่มกิจกรรมประจำใหม่</h2>
+            <h2>{t('addHabitTitle')}</h2>
             <button className="btn-icon" onClick={onClose}><X size={16} /></button>
           </div>
           <div className="modal-body">
             <div>
-              <label className="label">ชื่อกิจกรรม</label>
-              <input className="input" placeholder="เช่น ออกกำลังกาย, อ่านหนังสือ..." value={name}
+              <label className="label">{t('habitNameLabel')}</label>
+              <input className="input" placeholder={t('habitPH')} value={name}
                 onChange={e => setName(e.target.value)} autoFocus
                 onKeyDown={e => e.key === 'Enter' && name.trim() && onAdd({ name: name.trim(), color })} />
             </div>
             <div>
-              <label className="label">สี</label>
+              <label className="label">{t('colorLabel')}</label>
               <div style={{ display: 'flex', gap: 10, marginTop: 4 }}>
                 {COLORS.map(c => (
                   <button key={c} onClick={() => setColor(c)} style={{
@@ -56,9 +57,9 @@ function AddModal({ onClose, onAdd }) {
             </div>
           </div>
           <div className="modal-footer">
-            <button className="btn btn-ghost" onClick={onClose}>ยกเลิก</button>
+            <button className="btn btn-ghost" onClick={onClose}>{t('cancelBtn')}</button>
             <button className="btn btn-primary" onClick={() => name.trim() && onAdd({ name: name.trim(), color })}>
-              <Plus size={15} /> เพิ่มกิจกรรม
+              <Plus size={15} /> {t('addHabitBtn')}
             </button>
           </div>
         </div>
@@ -68,6 +69,7 @@ function AddModal({ onClose, onAdd }) {
 }
 
 export default function Habits() {
+  const { t, lang }    = useLanguage()
   const [habits,    setHabits]    = useState([])
   const [allLogs,   setAllLogs]   = useState([])
   const [showModal, setShowModal] = useState(false)
@@ -98,7 +100,7 @@ export default function Habits() {
   }
 
   function deleteHabit(id) {
-    if (!confirm('ลบนิสัยนี้?')) return
+    if (!confirm(lang === 'th' ? 'ลบกิจกรรมนี้?' : 'Delete this activity?')) return
     db.habits.delete(id)
     setHabits(prev => prev.filter(h => h.id !== id))
     setAllLogs(prev => prev.filter(l => l.habit_id !== id))
@@ -107,16 +109,16 @@ export default function Habits() {
   return (
     <div className="animate-in">
       <div className="page-header">
-        <h1>กิจกรรมประจำ</h1>
+        <h1>{t('habitsTitle')}</h1>
         <button className="btn btn-primary" onClick={() => setShowModal(true)}>
-          <Plus size={16} /> เพิ่มกิจกรรม
+          <Plus size={16} /> {t('addHabitBtn')}
         </button>
       </div>
 
       {habits.length === 0 ? (
         <div className="empty-state">
-          <p style={{ fontWeight: 500, color: 'var(--text-2)', marginBottom: 6 }}>กรุณาเพิ่มกิจกรรมก่อน</p>
-          <p style={{ fontSize: 13 }}>เช่น ออกกำลังกาย, อ่านหนังสือ, นั่งสมาธิ</p>
+          <p style={{ fontWeight: 500, color: 'var(--text-2)', marginBottom: 6 }}>{t('noHabitsLine1')}</p>
+          <p style={{ fontSize: 13 }}>{t('noHabitsLine2')}</p>
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
@@ -130,7 +132,7 @@ export default function Habits() {
                   <div style={{ width: 10, height: 10, borderRadius: '50%', background: habit.color, flexShrink: 0 }} />
                   <span style={{ flex: 1, fontWeight: 600, fontSize: 15, color: 'var(--text)' }}>{habit.name}</span>
                   <span style={{ fontSize: 13, color: 'var(--text-2)', display: 'flex', alignItems: 'center', gap: 4 }}>
-                    <Flame size={14} color="var(--orange)" /> {streak} วัน
+                    <Flame size={14} color="var(--orange)" /> {streak} {t('daysUnit')}
                   </span>
                   <button className={`habit-check-btn${doneToday ? ' done' : ''}`} onClick={() => toggleToday(habit)}>
                     {doneToday && <Check size={14} />}
@@ -148,14 +150,14 @@ export default function Habits() {
                     }} />
                   ))}
                 </div>
-                <div style={{ fontSize: 11, color: 'var(--text-3)', marginTop: 6 }}>30 วันล่าสุด</div>
+                <div style={{ fontSize: 11, color: 'var(--text-3)', marginTop: 6 }}>{t('last30')}</div>
               </div>
             )
           })}
         </div>
       )}
 
-      {showModal && <AddModal onClose={() => setShowModal(false)} onAdd={addHabit} />}
+      {showModal && <AddModal onClose={() => setShowModal(false)} onAdd={addHabit} t={t} />}
     </div>
   )
 }

@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { ThemeProvider } from './context/ThemeContext'
+import { LangProvider } from './context/LangContext'
 import Layout from './components/layout/Layout'
 import Dashboard from './pages/Dashboard'
 import CalendarView from './pages/CalendarView'
@@ -9,6 +10,7 @@ import Focus from './pages/Focus'
 
 export default function App() {
   return (
+    <LangProvider>
     <ThemeProvider>
       <BrowserRouter>
         <Routes>
@@ -23,5 +25,6 @@ export default function App() {
         </Routes>
       </BrowserRouter>
     </ThemeProvider>
+    </LangProvider>
   )
 }
